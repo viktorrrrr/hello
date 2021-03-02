@@ -63,7 +63,7 @@ def sendEmail(df_new):
     msg = MIMEMultipart('alternative')
 
     frm = 'weikeduo11@hotmail.com'
-    to = 'viktor.enlund@gmail.com'
+    to = ['viktor.enlund@gmail.com','gu_heavens@163.com']
     msg['From'] = frm
     msg['To'] = to
     msg['Subject'] = 'New apartments available!'
@@ -131,6 +131,3 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         </body>
         </html>
         """)
-
-
-    
