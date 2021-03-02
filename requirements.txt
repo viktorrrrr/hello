@@ -9,3 +9,4 @@ pandas
 datetime
 lxml
 openpyxl
+azure.storage.blob

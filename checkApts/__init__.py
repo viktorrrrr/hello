@@ -9,6 +9,8 @@ import lxml
 import openpyxl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from azure.storage.blob import BlobClient
+import io
  
 # Import module for Azure Functions and give it an alias
 import azure.functions as func
@@ -92,7 +94,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
  
     URL = {'https://sh.zu.ke.com/zufang/rco11rs%E4%B8%8A%E9%9D%92%E4%BD%B3%E5%9B%AD/', 'https://sh.zu.ke.com/zufang/brp7500erp14000rs%E6%B2%B3%E6%BB%A8%E5%9B%B4%E5%9F%8E/', 'https://sh.zu.ke.com/zufang/c5011000018183/?sug=%E9%9F%B3%E4%B9%90%E5%B9%BF%E5%9C%BA'}
     try:
-        df = pd.read_excel('list.xlsx')
+        blob_client = BlobClient.from_blob_url("https://apts.blob.core.windows.net/azure-webjobs-hosts/list.xlsx?sp=rw&st=2021-03-02T04:47:11Z&se=2022-03-02T12:47:11Z&sv=2020-02-10&sr=b&sig=vj4QZakCnTH8qyGTpPvBHEliLhaBkiGzNuTMYEvZ6Uc%3D")
+        download_stream = blob_client.download_blob()
+        df = pd.read_excel(download_stream.readall())
     except:
         df = pd.DataFrame()
     
@@ -101,7 +105,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     for u in URL:
         df, df_new = checkCompound(df,df_new, u)
 
-    df.to_excel('list.xlsx', index=False)
+    # save to Azure
+    writer = io.BytesIO()
+    df.to_excel(writer, index=False)
+    blob = BlobClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=apts;AccountKey=FIBkp9peEA7rezJQ3FmOOpbohA8eUflh4B5zS20igrBsEQUIv5Yrxyj/9uTx1pg1e3y0UalVDl7xEpyA8Zja5g==;EndpointSuffix=core.windows.net", container_name="azure-webjobs-hosts", blob_name="list.xlsx")
+    blob.upload_blob(writer.getvalue(), overwrite=True)
 
     if df_new.empty == False:
         sendEmail(df_new)
@@ -111,9 +119,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     return func.HttpResponse(status_code=200,headers={'content-type':'text/html'}, 
         body=
-f"""<!DOCTYPE html>
-<html>
-<body>{df_new.to_html(index_names=False, escape=False, index=False)}
-</body>
-</html>
-""")
+        f"""<!DOCTYPE html>
+        <html>
+        <body>{df_new.to_html(index_names=False, escape=False, index=False)}
+        </body>
+        </html>
+        """)
