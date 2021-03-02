@@ -70,7 +70,7 @@ def sendEmail(df_new):
 
 
     hotmail_user = 'weikeduo11@hotmail.com'
-    hotmail_password = 'voctor766'
+    hotmail_password = 'xxx'
     part1 = MIMEText(text, 'plain')
     part2 = MIMEText(html_msg, 'html')
     msg.attach(part1)
