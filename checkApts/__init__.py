@@ -113,11 +113,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     if df_new.empty == False:
         sendEmail(df_new)
-    else:
-        print("no new!")
-
-
-    return func.HttpResponse(status_code=200,headers={'content-type':'text/html'}, 
+        return func.HttpResponse(status_code=200,headers={'content-type':'text/html'}, 
         body=
         f"""<!DOCTYPE html>
         <html>
@@ -125,3 +121,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         </body>
         </html>
         """)
+    else:
+        print("no new!")
+        return func.HttpResponse(status_code=200,headers={'content-type':'text/html'}, 
+        body=
+        f"""<!DOCTYPE html>
+        <html>
+        <body>No new ones!
+        </body>
+        </html>
+        """)
+
+
+    
